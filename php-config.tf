@@ -44,6 +44,16 @@ locals {
       exclude = "log (PHP Deprecated:|msg=\"PHP Deprecated:)"
     },
     {
+      name    = "grep"
+      match   = "*" # Will be overridden by container-specific pattern
+      exclude = "log (Running \\[|DONE\"|Skipping \\[|job succeeded|msg=\"starting|iteration=)"
+    },
+    {
+      name    = "grep"
+      match   = "*" # Will be overridden by container-specific pattern
+      exclude = "log (RUNNING|\\.\\.\\. DONE)"
+    },
+    {
       name  = "modify"
       match = "*" # Will be overridden by container-specific pattern
       add_fields = {
