@@ -3,6 +3,25 @@ applyTo: "**/variables.tf"
 ---
 # Terraform Inputs Instructions
 
+## Quick Reference
+
+**When defining module inputs:**
+- Use `log_sources` list to specify technologies: "php", "nginx", "envoy", "dotnet"
+- Set optional `container` for container-specific filtering (defaults to "*")
+- Use `custom_parsers` and `custom_filters` for extensions
+- Each technology + container combination must be unique
+
+**Cross-references:**
+- Variable descriptions → [documentation.instructions.md](./documentation.instructions.md)
+- Variable validation patterns → Use the **terraform-values** skill
+- Variable types and complex objects → Use the **terraform-values** skill
+- Output structure → [terraform-outputs.instructions.md](./terraform-outputs.instructions.md)
+- Terraform code style → [terraform.instructions.md](./terraform.instructions.md)
+
+---
+
+## Overview
+
 This module provides standardized Fluent Bit parser and filter configurations for common technologies used in ECS Fargate services.
 
 ## Core Concepts
