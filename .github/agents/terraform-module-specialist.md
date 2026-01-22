@@ -62,15 +62,25 @@ handoffs:
     prompt: |
       Create comprehensive documentation for the Terraform module that was just implemented.
 
-      Module files: main.tf, variables.tf, outputs.tf, versions.tf
-      Test files: {test_file_paths}
+      Implementation plan: {implementation_plan_reference}
       Feature files: {feature_file_paths}
+      Test files: {test_file_paths}
+      Module files: {module_file_paths}
+      Test results: {final_test_results}
+
+      Context:
+      - If ADR: Read the ADR file for architectural context to include in documentation
+      - If lightweight plan: Use the inline requirements for context
+      - Review scenarios to understand use cases for examples
+      - Review test files to understand module behavior
+      - Check final test results to confirm all tests pass (green phase)
 
       Focus on:
       - Creating README.md with module name, description, examples, terraform-docs markers
       - Adding clear descriptions to all variables in variables.tf
       - Adding helpful descriptions to all outputs in outputs.tf
       - Creating inline examples (minimal and advanced) based on scenarios
+      - Documenting any architectural decisions from the ADR/plan
 
       Follow all standards in .github/instructions/documentation.instructions.md
     send: true

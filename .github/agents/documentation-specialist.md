@@ -6,19 +6,36 @@ handoffs:
   - label: Create Examples
     agent: examples-specialist
     prompt: |
-      Create runnable example configurations for the documented Terraform module.
+      Review the module and determine if example configurations should be created or updated.
 
-      Module files: main.tf, variables.tf, outputs.tf
+      Implementation plan: {implementation_plan_reference}
       Feature files: {feature_file_paths}
-      README.md: Contains inline examples for reference
+      Test files: {test_file_paths}
+      Module files: {module_file_paths}
+      Documentation files: {documentation_file_paths}
 
-      Focus on:
-      - Creating examples/ directory structure
+      Context:
+      - If ADR: Read the ADR file for architectural context
+      - If lightweight plan: Use inline requirements
+      - Review scenarios to identify distinct use cases
+      - Review tests to understand module behavior
+      - Review README.md for inline examples (already created)
+      - Check if module changes warrant new examples
+
+      Decision criteria:
+      - Skip if only documentation/descriptions changed
+      - Skip if inline examples in README.md are sufficient
+      - Create/update if new features were added
+      - Create/update if scenarios show distinct use cases
+      - Create/update if examples/ directory doesn't exist yet
+
+      If creating examples:
+      - examples/ directory structure
       - Basic example (minimal configuration from scenarios)
       - Complete example (production-ready from scenarios)
       - Scenario-specific examples (one per distinct use case)
       - All 5 required files per example (main.tf, variables.tf, outputs.tf, versions.tf, README.md)
-      - Testing each example: terraform init, validate, plan
+      - Test each example: terraform init, validate, plan
 
       Follow all standards in .github/instructions/examples.instructions.md
     send: true

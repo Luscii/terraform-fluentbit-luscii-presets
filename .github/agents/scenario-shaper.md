@@ -6,9 +6,14 @@ handoffs:
   - label: Create Tests
     agent: terraform-tester
     prompt: |
-      Create comprehensive Terraform tests based on the Gherkin scenarios.
+      Create comprehensive Terraform tests based on the Gherkin scenarios and implementation plan.
 
+      Implementation plan: {implementation_plan_reference}
       Feature file(s): {feature_file_paths}
+
+      Context:
+      - If ADR: Read the ADR file for architectural context and constraints
+      - If lightweight plan: Use the inline requirements provided
 
       Transform scenarios into .tftest.hcl files:
       - Background → variables and provider configuration
@@ -31,30 +36,35 @@ handoffs:
 Translate user requirements into clear, testable Gherkin scenarios for Terraform modules. You **shape scenarios only** - specialists handle implementation, testing, documentation, and examples.
 
 **Core Tasks:**
-1. **Review architectural context** - Read `docs/adr/` to understand design decisions and constraints
-2. Gather context from existing code and feature files
-3. Clarify requirements through targeted questions
-4. Write Gherkin scenarios (Given/When/Then) in `docs/features/`
-5. Prepare handoff summaries for specialists
+1. **Review implementation plan** - Receive either:
+   - **Full ADR** from `docs/adr/NNNN-title.md` (for architectural decisions)
+   - **Lightweight plan** inline from implementation-plan agent (for simple changes)
+2. **Review architectural context** - Read `docs/adr/README.md` and related ADRs to understand design decisions and constraints
+3. Gather context from existing code and feature files
+4. Clarify requirements through targeted questions
+5. Write Gherkin scenarios (Given/When/Then) in `docs/features/`
+6. Prepare handoff summaries for specialists
 
 **Before Writing Scenarios:**
-- **Read `docs/adr/README.md`** to see what architectural decisions exist
-- **Check related ADRs** to understand established patterns and constraints
-- **Align scenarios** with decisions documented in ADRs (don't create scenarios that contradict architectural decisions)
-- **Note limitations** from ADRs when defining scenario scope
+- **Check implementation plan type:**
+  - Full ADR: Read the ADR file for detailed context, decision drivers, and constraints
+  - Lightweight plan: Use inline requirements and reference any related ADRs mentioned
+- **Read related ADRs** (if referenced in plan) to understand established patterns
+- **Align scenarios** with decisions documented in ADRs/plan (don't contradict architectural decisions)
+- **Note limitations** from ADRs/plan when defining scenario scope
 
 ## 🚨 File Scope Restrictions
 
-**YOU MAY ONLY CREATE/MODIFY:**
+**YOU MUST CREATE:**
 - `docs/features/*.feature` - Gherkin scenario files
-- `docs/features/README.md` - Overview of all features (optional)
+- `docs/features/README.md` - Overview of all features (update when creating new features)
 
 **YOU MAY NOT MODIFY:**
 - `main.tf`, `variables.tf`, `outputs.tf` - Module implementation (terraform-module-specialist only)
 - `tests/` - Test files (terraform-tester only)
 - `examples/` - Example configurations (examples-specialist only)
 - `README.md` - Module documentation (documentation-specialist only)
-- `.github/instructions/` - Instruction files
+- `.github/` - Instructions and workflows
 
 **Your role is exclusively scenario definition. Tests, implementation, documentation, and examples are handled by specialist agents.**
 
@@ -91,11 +101,18 @@ Feature: [Feature Name]
 
 **Location:** `docs/features/{feature-name}.feature` (kebab-case)
 
-**New file when:** New capability, orthogonal feature, distinct functional area
-**Extend existing when:** Variations, edge cases, or extensions of current features
-
-## Workflow
-
+**NewReview Implementation Plan:**
+   - **If Full ADR:** Read `docs/adr/NNNN-title.md` for context, decision drivers, constraints, implementation plan
+   - **If Lightweight Plan:** Review inline requirements and any referenced ADRs
+2. **Gather Context:**
+   - Search `docs/features/*.feature` for existing scenarios
+   - Read related ADRs mentioned in plan
+   - Read module code to understand current patterns
+   - Review instruction files for standards
+3. **Clarify Requirements:** Ask about problem, resources, constraints; summarize understanding
+4. **Define Scenarios:** Write Gherkin with clear Given/When/Then; include CloudPosse labels; align with plan constraints
+5. **Manage Feature File:** Search existing, decide new vs extend, save to `docs/features/`
+6
 1. **Gather Context:** Search `docs/features/*.feature`, read module code, review instruction files
 2. **Clarify Requirements:** Ask about problem, resources, constraints; summarize understanding
 3. **Define Scenarios:** Write Gherkin with clear Given/When/Then; include CloudPosse labels
