@@ -17,8 +17,14 @@ applyTo: "**/*.tf"
 - Run: `terraform fmt`, `terraform validate`, security scans
 
 **Cross-references:**
+- HCL syntax, expressions, operators, templates → Use the **terraform-syntax** skill
+- Variables, locals, outputs → Use the **terraform-values** skill
+- Module structure, nested modules, composition → Use the **terraform-modules** skill
+- Resource configuration, meta-arguments, dynamic blocks, lifecycle → Use the **terraform-resources** skill
+- Built-in functions (100+ functions across 11 categories) → Use the **terraform-functions** skill
 - Variable/output descriptions → [documentation.instructions.md](./documentation.instructions.md)
 - Examples → [examples.instructions.md](./examples.instructions.md)
+- Refactoring/renaming → Use the **terraform-refactoring** skill for safe resource/module renames
 
 ---
 

@@ -17,9 +17,9 @@ locals {
       }
     },
     {
-      name   = "nginx_access"
-      format = "regex"
-      regex  = "^(?<remote>[^ ]*) - (?<user>[^ ]*) \\[(?<time>[^\\]]*)\\] \"(?<method>\\S+)(?: +(?<path>[^\\\"]*?)(?: +\\S*)?)?\" (?<code>[^ ]*) (?<size>[^ ]*)(?: \"(?<referer>[^\\\"]*)\" \"(?<agent>[^\\\"]*)\")?$"
+      name        = "nginx_access"
+      format      = "regex"
+      regex       = "^(?<remote>[^ ]*) - (?<user>[^ ]*) \\[(?<time>[^\\]]*)\\] \"(?<method>\\S+)(?: +(?<path>[^\\\"]*?)(?: +\\S*)?)?\" (?<code>[^ ]*) (?<size>[^ ]*)(?: \"(?<referer>[^\\\"]*)\" \"(?<agent>[^\\\"]*)\")?$"
       time_key    = "time"
       time_format = "%d/%b/%Y:%H:%M:%S %z"
       filter = {
@@ -29,9 +29,9 @@ locals {
       }
     },
     {
-      name   = "nginx_error"
-      format = "regex"
-      regex  = "^(?<time>\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2}) \\[(?<level>\\w+)\\] (?<pid>\\d+).(?<tid>\\d+): (?<message>.*)$"
+      name        = "nginx_error"
+      format      = "regex"
+      regex       = "^(?<time>\\d{4}/\\d{2}/\\d{2} \\d{2}:\\d{2}:\\d{2}) \\[(?<level>\\w+)\\] (?<pid>\\d+).(?<tid>\\d+): (?<message>.*)$"
       time_key    = "time"
       time_format = "%Y/%m/%d %H:%M:%S"
       filter = {

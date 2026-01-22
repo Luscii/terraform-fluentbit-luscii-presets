@@ -18,8 +18,10 @@ repos:
           - --hook-config=--path-to-file=README.md
       - id: terraform_tflint
         files: \.tf$
+        exclude: ^examples/
       - id: terraform_checkov
         files: \.tf$
+        exclude: ^examples/
         args:
           - --args=--config-file ./.checkov-config.yml
   - repo: https://github.com/python-jsonschema/check-jsonschema
@@ -27,3 +29,11 @@ repos:
     hooks:
       - id: check-github-workflows
         args: ["--verbose"]
+  - repo: local
+    hooks:
+      - id: terraform-test
+        name: Terraform test
+        entry: terraform test
+        language: system
+        files: \.(tf|tftest\.hcl)$
+        pass_filenames: false

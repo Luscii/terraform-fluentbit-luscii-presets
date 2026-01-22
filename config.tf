@@ -43,14 +43,14 @@ locals {
   )
 
   # Final combined parsers: technology-specific + custom
-  parser_config = distinct(concat(
+  parser_config = concat(
     local.technology_parsers,
     var.custom_parsers
-  ))
+  )
 
   # Final combined filters: technology-specific + custom
-  filters_config = distinct(concat(
+  filters_config = concat(
     local.technology_filters,
     var.custom_filters
-  ))
+  )
 }

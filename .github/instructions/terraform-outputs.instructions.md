@@ -1,26 +1,68 @@
 ---
 applyTo: "outputs.tf"
 ---
-This Terraform module needs to be used in conjunction with the [Luscii/terraform-aws-ecs-fargate-datadog-container-definitions](https://github.com/Luscii/terraform-aws-ecs-fargate-datadog-container-definitions). It contains the necessary custom Fluentbit configuration to forward logs through Fluentbit.
+# Terraform Outputs Instructions
 
-The outputs provided by this module should be used as the following variables in the `Luscii/terraform-aws-ecs-fargate-datadog-container-definitions` module:
-- `log_config_parsers` - https://github.com/Luscii/terraform-aws-ecs-fargate-datadog-container-definitions/blob/main/variables.tf#L472-L526
-- `log_config_filters` - https://github.com/Luscii/terraform-aws-ecs-fargate-datadog-container-definitions/blob/main/variables.tf#L528-L579
+## Quick Reference
 
-Note that the permalinks for these outputs may change if the Fluentbit configuration in this module is updated. Always refer to the latest version of this module to ensure compatibility.
+**When defining module outputs:**
+- `parsers` and `filters` outputs integrate with [terraform-aws-ecs-fargate-datadog-container-definitions](https://github.com/Luscii/terraform-aws-ecs-fargate-datadog-container-definitions)
+- Follow Fluent Bit parser and filter structures (see examples below)
+- Parser outputs can include optional filter configuration
+- Use descriptive output descriptions
 
-The variables are based on the Fluentbit configuration which is documented here:
-- [Parsers](https://docs.fluentbit.io/manual/data-pipeline/parsers)
-- [Filters](https://docs.fluentbit.io/manual/data-pipeline/filters)
+**Cross-references:**
+- Output descriptions → [documentation.instructions.md](./documentation.instructions.md)
+- Output structure and types → Use the **terraform-values** skill
+- Integration with inputs → [terraform-inputs.instructions.md](./terraform-inputs.instructions.md)
+- Terraform code style → [terraform.instructions.md](./terraform.instructions.md)
 
-The parsers variable also includes a filter which will result in a filter being added to the Filters section, this is done in the `local.all_filters` defined on: https://github.com/Luscii/terraform-aws-ecs-fargate-datadog-container-definitions/blob/main/logging-custom-config.tf#L7-L22.
-Make sure to review the Fluentbit documentation for more details on how to customize and extend the logging configuration as needed.
+**External Documentation:**
+- [Fluent Bit Parsers](https://docs.fluentbit.io/manual/data-pipeline/parsers)
+- [Fluent Bit Filters](https://docs.fluentbit.io/manual/data-pipeline/filters)
 
-## Luscii/terraform-aws-ecs-fargate-datadog-container-definitions
-The `Luscii/terraform-aws-ecs-fargate-datadog-container-definitions` module provides a way to define ECS Fargate tasks with Datadog capabilities. It sets up the necessary container definitions, logging configurations, and integrations with Datadog for monitoring and observability.
+---
 
-### Parsers input variable
-The parser input variable in the `Luscii/terraform-aws-ecs-fargate-datadog-container-definitions` module has the following structure in `v0.1.8`:
+## Overview
+
+This module provides Fluent Bit parser and filter configurations to be consumed by the [terraform-aws-ecs-fargate-datadog-container-definitions](https://github.com/Luscii/terraform-aws-ecs-fargate-datadog-container-definitions) module.
+
+**Key Outputs:**
+- `parsers` → `log_config_parsers` variable
+- `filters` → `log_config_filters` variable
+
+## Integration with Consumer Module
+
+### terraform-aws-ecs-fargate-datadog-container-definitions
+
+This module's outputs are designed to integrate with the [terraform-aws-ecs-fargate-datadog-container-definitions](https://github.com/Luscii/terraform-aws-ecs-fargate-datadog-container-definitions) module, which provides ECS Fargate tasks with Datadog monitoring and logging capabilities.
+
+**Integration Pattern:**
+```hcl
+module "fluentbit_config" {
+  source = "github.com/Luscii/terraform-fluentbit-configuration"
+
+  log_sources = [
+    { name = "php", container = "app" }
+  ]
+}
+
+module "container_definitions" {
+  source = "github.com/Luscii/terraform-aws-ecs-fargate-datadog-container-definitions"
+
+  log_config_parsers = module.fluentbit_config.parsers
+  log_config_filters = module.fluentbit_config.filters
+  # ... other configuration
+}
+```
+
+## Output Structure Reference
+
+## Output Structure Reference
+
+The outputs must conform to the variable structure expected by the consumer module. Below are the type definitions and validation rules.
+
+### Parsers Output Structure
 ```hcl
 variable "log_config_parsers" {
   description = "Custom parser definitions for Fluent Bit log processing. Each parser can extract and transform log data using formats like json, regex, ltsv, or logfmt. The optional filter section controls when and how the parser is applied to log records. Required for Fluent Bit v3.x YAML configurations. See: https://docs.fluentbit.io/manual/data-pipeline/parsers/configuring-parser and https://docs.fluentbit.io/manual/pipeline/filters/parser"
@@ -79,8 +121,12 @@ variable "log_config_parsers" {
 }
 ```
 
-### Filters input variable
-The filters input variable in the `Luscii/terraform-aws-ecs-fargate-datadog-container-definitions` module has the following structure in `v0.1.8`:
+**Key Validations:**
+- Parser `format` must be one of: `json`, `regex`, `ltsv`, `logfmt`
+- Regex parsers require `regex` field
+- Parser filters require `key_name` when `filter` is specified
+
+### Filters Output Structure
 ```hcl
 variable "log_config_filters" {
   description = "Custom filter definitions for Fluent Bit log processing. Filters can modify, enrich, or drop log records. Common filter types include grep (include/exclude), modify (add/rename/remove fields), nest (restructure data), and kubernetes (enrich with K8s metadata). See: https://docs.fluentbit.io/manual/pipeline/filters"
@@ -136,14 +182,17 @@ variable "log_config_filters" {
 }
 ```
 
-## Example Output Structure
+**Key Validations:**
+- Parser filters require both `parser` and `key_name` fields
+- Nest filters require `operation` field (nest or lift)
 
-This module should provide outputs that match the variable structure above. Here's an example of what the outputs could look like:
+## Output Examples
 
-### Example: JSON Parser with Filter
+### JSON Parser with Filter
+
 ```hcl
 output "parsers" {
-  description = "Custom parser definitions for Fluent Bit log processing to be used in Luscii/terraform-aws-ecs-fargate-datadog-container-definitions"
+  description = "Fluent Bit parser definitions for integration with terraform-aws-ecs-fargate-datadog-container-definitions"
   value = [
     {
       name   = "docker_json"
@@ -163,7 +212,7 @@ output "parsers" {
 }
 
 output "filters" {
-  description = "Custom filter definitions for Fluent Bit log processing to be used in Luscii/terraform-aws-ecs-fargate-datadog-container-definitions"
+  description = "Fluent Bit filter definitions for integration with terraform-aws-ecs-fargate-datadog-container-definitions"
   value = [
     {
       name  = "modify"
@@ -183,7 +232,8 @@ output "filters" {
 }
 ```
 
-### Example: Regex Parser
+### Regex Parser
+
 ```hcl
 parsers = [
   {
@@ -201,7 +251,8 @@ parsers = [
 ]
 ```
 
-### Example: Nest Filter
+### Nest Filter
+
 ```hcl
 filters = [
   {

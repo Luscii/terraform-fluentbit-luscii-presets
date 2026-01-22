@@ -14,6 +14,7 @@ applyTo: "**/*.md,variables.tf,outputs.tf"
 - Placeholders: `<VALUE>` for user input, `{{VALUE}}` for templates
 - For examples → see [examples.instructions.md](./examples.instructions.md)
 - For Terraform code style → see [terraform.instructions.md](./terraform.instructions.md)
+- Visual diagrams → Use the **mermaid-diagrams** skill for flowcharts, architecture diagrams, and workflows
 
 ---
 

@@ -1,3 +1,7 @@
+---
+applyTo: "**"
+---
+
 # Conventional Commits for Pull Requests
 
 ## Overview

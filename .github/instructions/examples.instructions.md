@@ -17,6 +17,7 @@ applyTo: "examples/**/*,README.md"
 **Cross-references:**
 - README documentation → [documentation.instructions.md](./documentation.instructions.md)
 - Terraform code style → [terraform.instructions.md](./terraform.instructions.md)
+- Visual diagrams → Use the **mermaid-diagrams** skill for workflow diagrams and example visualizations
 
 ---
 

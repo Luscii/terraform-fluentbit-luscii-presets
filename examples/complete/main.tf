@@ -1,11 +1,8 @@
-# Complete Example
+################################################################################
+# Example 1: Basic Multi-Technology Setup
+################################################################################
 
-This example demonstrates how to use the fluentbit-configuration module with multiple technologies and custom configurations.
-
-## Basic Usage
-
-```hcl
-module "log_config" {
+module "log_config_basic" {
   source = "../../"
 
   name = "my-service"
@@ -22,24 +19,15 @@ module "log_config" {
   ]
 }
 
-# Use outputs in your ECS container definitions module
-module "container_definitions" {
-  source = "Luscii/terraform-aws-ecs-fargate-datadog-container-definitions"
+################################################################################
+# Example 2: Advanced Setup with Custom Configuration
+################################################################################
 
-  log_config_parsers = module.log_config.log_config_parsers
-  log_config_filters = module.log_config.log_config_filters
-
-  # ... other configuration
-}
-```
-
-## Advanced Usage with Custom Parsers and Filters
-
-```hcl
-module "log_config" {
+module "log_config_advanced" {
   source = "../../"
 
-  name = "my-service"
+  name    = "advanced-service"
+  context = module.label.context
 
   # Standard technology configurations
   log_sources = [
@@ -56,15 +44,16 @@ module "log_config" {
       container = "web"
     },
     {
-      name      = "envoy" # No container specified, uses wildcard
+      name      = "datadog"
+      container = "datadog-agent"
     }
   ]
 
   # Add custom parser for application-specific format
   custom_parsers = [
     {
-      name   = "custom_app_json"
-      format = "json"
+      name        = "custom_app_json"
+      format      = "json"
       time_key    = "timestamp"
       time_format = "%Y-%m-%dT%H:%M:%S.%LZ"
       time_keep   = true
@@ -77,8 +66,9 @@ module "log_config" {
     }
   ]
 
-  # Add custom filters for enrichment
+  # Add custom filters for enrichment and additional filtering
   custom_filters = [
+    # Enrich all logs with environment metadata
     {
       name  = "modify"
       match = "*"
@@ -88,36 +78,26 @@ module "log_config" {
         team        = "platform"
       }
     },
+    # Only keep ERROR and CRITICAL logs from app container
+    {
+      name  = "grep"
+      match = "container-app-*"
+      regex = "level (ERROR|CRITICAL)"
+    },
+    # Exclude health check requests from nginx
     {
       name    = "grep"
-      match   = "container-app-*"
-      regex   = "level (ERROR|CRITICAL)"
+      match   = "container-web-*"
+      exclude = "request_uri /health"
     }
   ]
 }
-```
 
-## Single Technology Example
+################################################################################
+# Example 3: Multi-Worker PHP Setup
+################################################################################
 
-```hcl
-module "log_config" {
-  source = "../../"
-
-  name = "api-service"
-
-  log_sources = [
-    {
-      name      = "dotnet"
-      container = "api"
-    }
-  ]
-}
-```
-
-## Multiple Containers Same Technology
-
-```hcl
-module "log_config" {
+module "log_config_workers" {
   source = "../../"
 
   name = "worker-service"
@@ -138,20 +118,47 @@ module "log_config" {
     }
   ]
 }
-```
 
-## Output Structure
+################################################################################
+# Supporting Resources
+################################################################################
 
-The module outputs are ready to use with the container definitions module:
+# CloudPosse label module for consistent naming
+module "label" {
+  source  = "cloudposse/label/null"
+  version = "0.25.0"
 
-```hcl
-output "log_config_parsers" {
-  # List of parser objects matching the log_config_parsers variable structure
-  value = module.log_config.log_config_parsers
+  namespace   = "luscii"
+  environment = "prod"
+  name        = "example-service"
+  attributes  = ["ecs"]
+
+  tags = {
+    ManagedBy = "terraform"
+    Example   = "complete"
+  }
 }
 
-output "log_config_filters" {
-  # List of filter objects matching the log_config_filters variable structure
-  value = module.log_config.log_config_filters
-}
-```
+################################################################################
+# Integration Example with Container Definitions
+################################################################################
+
+# This shows how you would use the log configuration with the container definitions module
+# Uncomment and configure when deploying to actual ECS
+
+# module "container_definitions" {
+#   source  = "Luscii/terraform-aws-ecs-fargate-datadog-container-definitions"
+#   version = "~> 0.1.8"
+#
+#   # Pass the log configuration outputs
+#   log_config_parsers = module.log_config_advanced.log_config_parsers
+#   log_config_filters = module.log_config_advanced.log_config_filters
+#
+#   # Other container configuration...
+#   container_name   = "app"
+#   container_image  = "my-app:latest"
+#   container_cpu    = 256
+#   container_memory = 512
+#
+#   # Environment variables, secrets, etc.
+# }
