@@ -7,9 +7,6 @@ variables {
   name    = "test"
 }
 
-# Mock AWS provider - no credentials needed for unit tests
-mock_provider "aws" {}
-
 # Test: PHP parsers are defined correctly
 run "validate_php_parsers_count" {
   command = plan
