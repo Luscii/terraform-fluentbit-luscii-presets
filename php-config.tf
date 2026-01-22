@@ -34,6 +34,65 @@ locals {
   # These filters enrich and process PHP logs
   php_filters = [
     {
+      name    = "grep"
+      match   = "*" # Will be overridden by container-specific pattern
+      # Exclude access-log style lines: "<IP> - <dd/Mon/yyyy:HH:MM:SS +/-ZZZZ> \"<METHOD> /index.php\" <status>"
+      exclude = "log ^[\\d\\.]+ - \\d{2}/\\w{3}/\\d{4}:\\d{2}:\\d{2}:\\d{2} [+-]\\d{4} \"\\w+ /index\\.php\" \\d+$"
+    },
+    {
+      # Exclude unstructured PHP deprecated notices (plain PHP error logs)
+      name    = "grep"
+      match   = "*" # Will be overridden by container-specific pattern
+      exclude = "log PHP Deprecated:"
+    },
+    {
+      # Exclude structured PHP deprecated notices where message is in msg="..."
+      name    = "grep"
+      match   = "*" # Will be overridden by container-specific pattern
+      exclude = "log msg=\"PHP Deprecated:"
+    },
+    # Laravel schedule: running events (e.g. "Running [App\...]" messages)
+    {
+      name    = "grep"
+      match   = "*" # Will be overridden by container-specific pattern
+      exclude = "log Running \\["
+    },
+    # Laravel schedule: done events (e.g. '... DONE"')
+    {
+      name    = "grep"
+      match   = "*" # Will be overridden by container-specific pattern
+      exclude = "log DONE\""
+    },
+    # Laravel schedule: skipping events (e.g. "Skipping [App\...]" messages)
+    {
+      name    = "grep"
+      match   = "*" # Will be overridden by container-specific pattern
+      exclude = "log Skipping \\["
+    },
+    # Laravel queue: job succeeded messages
+    {
+      name    = "grep"
+      match   = "*" # Will be overridden by container-specific pattern
+      exclude = "log job succeeded"
+    },
+    # Laravel schedule: "starting" lifecycle messages
+    {
+      name    = "grep"
+      match   = "*" # Will be overridden by container-specific pattern
+      exclude = "log msg=\"starting"
+    },
+    # Laravel iteration logs (e.g. "iteration=" counters)
+    {
+      name    = "grep"
+      match   = "*" # Will be overridden by container-specific pattern
+      exclude = "log iteration="
+    },
+    {
+      name    = "grep"
+      match   = "*" # Will be overridden by container-specific pattern
+      exclude = "log (RUNNING|\\.\\.\\. DONE)"
+    },
+    {
       name  = "modify"
       match = "*" # Will be overridden by container-specific pattern
       add_fields = {

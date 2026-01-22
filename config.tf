@@ -30,6 +30,7 @@ locals {
     local.nginx_parsers_map,
     local.envoy_parsers_map,
     local.dotnet_parsers_map,
+    local.datadog_parsers_map,
   )
 
   # Map of technology name to their filters (populated by tech-specific config files)
@@ -38,6 +39,7 @@ locals {
     local.nginx_filters_map,
     local.envoy_filters_map,
     local.dotnet_filters_map,
+    local.datadog_filters_map,
   )
 
   # Final combined parsers: technology-specific + custom
