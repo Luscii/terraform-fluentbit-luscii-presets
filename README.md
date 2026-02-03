@@ -3,6 +3,8 @@
 
 Centralized Fluent Bit configuration for Luscii ECS/Fargate workloads, supporting PHP, Nginx, Envoy, Datadog, and .NET log parsing and filtering. Implements a parser-filter architecture (see [ADR-0002](docs/adr/0002-parser-filter-architecture.md)).
 
+**Default JSON Parsers:** This module includes default JSON parsers that handle various ISO 8601 datetime formats, preventing "invalid time format" errors in Fluent Bit. These parsers are always included regardless of the `log_sources` configuration.
+
 ## .NET Logging Support
 
 This module provides full .NET logging support, including:
