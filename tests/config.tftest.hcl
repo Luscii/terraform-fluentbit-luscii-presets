@@ -4,16 +4,16 @@
 variables {
   name = "test-arch"
   log_sources = [
-    { name = "php",    container = "app" },
-    { name = "nginx",  container = "web" },
-    { name = "envoy",  container = "envoy" },
+    { name = "php", container = "app" },
+    { name = "nginx", container = "web" },
+    { name = "envoy", container = "envoy" },
     { name = "datadog", container = "app" }
   ]
   custom_parsers = [
     {
-      name   = "custom_json"
-      format = "json"
-      time_key = "custom_time"
+      name        = "custom_json"
+      format      = "json"
+      time_key    = "custom_time"
       time_format = "%Y-%m-%dT%H:%M:%S%z"
       filter = {
         match    = "custom.*"
@@ -37,6 +37,37 @@ run "validate_technology_parsers_aggregation" {
   assert {
     condition     = length(local.technology_parsers) >= 9
     error_message = "technology_parsers should aggregate all technology-specific parsers (expected at least 9, got ${length(local.technology_parsers)})"
+  }
+}
+
+run "validate_default_parsers_exist" {
+  command = plan
+  assert {
+    condition     = length(local.default_parsers) == 4
+    error_message = "default_parsers should contain 4 JSON parsers for different time formats (got ${length(local.default_parsers)})"
+  }
+}
+
+run "validate_default_parsers_in_final_config" {
+  command = plan
+  assert {
+    condition = alltrue([
+      for parser_name in ["default_json_tz_colon", "default_json_tz", "default_json_utc", "default_json_micro"] :
+      contains([for p in local.parser_config : p.name], parser_name)
+    ])
+    error_message = "All default parsers should be included in final parser_config"
+  }
+}
+
+run "validate_default_parsers_always_included" {
+  command = plan
+  variables {
+    name        = "test-no-sources"
+    log_sources = []
+  }
+  assert {
+    condition     = length(local.parser_config) >= 4
+    error_message = "Default parsers should be included even when log_sources is empty (got ${length(local.parser_config)} parsers)"
   }
 }
 
@@ -67,7 +98,7 @@ run "validate_custom_filter_inclusion" {
 run "validate_container_specific_match_patterns" {
   command = plan
   assert {
-    condition     = alltrue([
+    condition = alltrue([
       for f in local.technology_filters :
       startswith(f.match, "container-")
     ])
@@ -78,7 +109,7 @@ run "validate_container_specific_match_patterns" {
 run "validate_parsers_map_keys" {
   command = plan
   assert {
-    condition     = alltrue([
+    condition = alltrue([
       for k in ["php", "nginx", "envoy", "datadog"] :
       contains(keys(local.technology_parsers_map), k)
     ])
@@ -89,7 +120,7 @@ run "validate_parsers_map_keys" {
 run "validate_filters_map_keys" {
   command = plan
   assert {
-    condition     = alltrue([
+    condition = alltrue([
       for k in ["php", "nginx", "envoy", "datadog"] :
       contains(keys(local.technology_filters_map), k)
     ])

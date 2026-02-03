@@ -42,14 +42,16 @@ locals {
     local.datadog_filters_map,
   )
 
-  # Final combined parsers: technology-specific + custom
+  # Final combined parsers: default + technology-specific + custom
   parser_config = concat(
+    local.default_parsers,
     local.technology_parsers,
     var.custom_parsers
   )
 
-  # Final combined filters: technology-specific + custom
+  # Final combined filters: default + technology-specific + custom
   filters_config = concat(
+    local.default_filters,
     local.technology_filters,
     var.custom_filters
   )
