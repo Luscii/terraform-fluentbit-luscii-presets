@@ -5,13 +5,19 @@ locals {
     source.name => source...
   }
 
-  # Collect all technology-specific parsers
-  technology_parsers = concat(
-    flatten([
-      for tech, sources in local.log_sources_by_tech :
-      lookup(local.technology_parsers_map, tech, [])
-    ])
-  )
+  # Collect all technology-specific parsers with container matching
+  # Apply container-specific match patterns to parsers with embedded filter configurations
+  technology_parsers = flatten([
+    for source in var.log_sources : [
+      for parser in lookup(local.technology_parsers_map, source.name, []) :
+      merge(parser, can(parser.filter) ? {
+        # Override filter match pattern to include container name if specified
+        filter = merge(parser.filter, {
+          match = source.container != "*" ? "container-${source.container}-*" : parser.filter.match
+        })
+      } : {})
+    ]
+  ])
 
   # Collect all technology-specific filters with container matching
   technology_filters = flatten([

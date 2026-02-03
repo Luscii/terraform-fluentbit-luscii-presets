@@ -4,16 +4,16 @@
 variables {
   name = "test-arch"
   log_sources = [
-    { name = "php",    container = "app" },
-    { name = "nginx",  container = "web" },
-    { name = "envoy",  container = "envoy" },
+    { name = "php", container = "app" },
+    { name = "nginx", container = "web" },
+    { name = "envoy", container = "envoy" },
     { name = "datadog", container = "app" }
   ]
   custom_parsers = [
     {
-      name   = "custom_json"
-      format = "json"
-      time_key = "custom_time"
+      name        = "custom_json"
+      format      = "json"
+      time_key    = "custom_time"
       time_format = "%Y-%m-%dT%H:%M:%S%z"
       filter = {
         match    = "custom.*"
@@ -67,7 +67,7 @@ run "validate_custom_filter_inclusion" {
 run "validate_container_specific_match_patterns" {
   command = plan
   assert {
-    condition     = alltrue([
+    condition = alltrue([
       for f in local.technology_filters :
       startswith(f.match, "container-")
     ])
@@ -78,7 +78,7 @@ run "validate_container_specific_match_patterns" {
 run "validate_parsers_map_keys" {
   command = plan
   assert {
-    condition     = alltrue([
+    condition = alltrue([
       for k in ["php", "nginx", "envoy", "datadog"] :
       contains(keys(local.technology_parsers_map), k)
     ])
@@ -89,7 +89,7 @@ run "validate_parsers_map_keys" {
 run "validate_filters_map_keys" {
   command = plan
   assert {
-    condition     = alltrue([
+    condition = alltrue([
       for k in ["php", "nginx", "envoy", "datadog"] :
       contains(keys(local.technology_filters_map), k)
     ])
@@ -102,5 +102,26 @@ run "validate_integration_with_consumer" {
   assert {
     condition     = length(local.parser_config) > 0 && length(local.filters_config) > 0
     error_message = "parser_config and filters_config should be non-empty for consumer integration"
+  }
+}
+
+run "validate_parser_filter_match_patterns" {
+  command = plan
+
+  assert {
+    condition = alltrue([
+      for p in local.technology_parsers :
+      can(p.filter) ? startswith(p.filter.match, "container-") : true
+    ])
+    error_message = "All technology parsers with embedded filters should have container-specific match patterns starting with 'container-'"
+  }
+
+  assert {
+    condition = length([
+      for p in local.technology_parsers :
+      can(p.filter) ? p.filter.match : ""
+      if can(p.filter)
+    ]) > 0
+    error_message = "At least one parser should have an embedded filter configuration"
   }
 }
