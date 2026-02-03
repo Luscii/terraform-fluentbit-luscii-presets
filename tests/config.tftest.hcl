@@ -43,8 +43,8 @@ run "validate_technology_parsers_aggregation" {
 run "validate_default_parsers_exist" {
   command = plan
   assert {
-    condition     = length(local.default_parsers) == 8
-    error_message = "default_parsers should contain 8 JSON parsers for different time formats and time fields (got ${length(local.default_parsers)})"
+    condition     = length(local.default_parsers) == 12
+    error_message = "default_parsers should contain 12 JSON parsers for different time formats and time fields (got ${length(local.default_parsers)})"
   }
 }
 
@@ -52,10 +52,10 @@ run "validate_default_parsers_in_final_config" {
   command = plan
   assert {
     condition = alltrue([
-      for parser_name in ["default_json_tz_colon", "default_json_tz", "default_json_utc", "default_json_micro", "default_json_time_local_tz_colon", "default_json_time_local_tz", "default_json_time_local_utc", "default_json_time_local_micro"] :
+      for parser_name in ["default_json_time_tz_colon", "default_json_time_tz", "default_json_time_utc", "default_json_time_micro", "default_json_tz_colon", "default_json_tz", "default_json_utc", "default_json_micro", "default_json_time_local_tz_colon", "default_json_time_local_tz", "default_json_time_local_utc", "default_json_time_local_micro"] :
       contains([for p in local.parser_config : p.name], parser_name)
     ])
-    error_message = "All 8 default parsers should be included in final parser_config"
+    error_message = "All 12 default parsers should be included in final parser_config"
   }
 }
 
@@ -66,7 +66,7 @@ run "validate_default_parsers_always_included" {
     log_sources = []
   }
   assert {
-    condition     = length(local.parser_config) >= 8
+    condition     = length(local.parser_config) >= 12
     error_message = "Default parsers should be included even when log_sources is empty (got ${length(local.parser_config)} parsers)"
   }
 }
