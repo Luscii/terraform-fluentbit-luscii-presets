@@ -21,8 +21,16 @@ locals {
 
   # Envoy filter configurations
   # These filters reduce noise from health checks and add metadata
+  # Ordered from most specific to least specific
   envoy_filters = [
-    # Exclude health check endpoints - common in both AppMesh and ServiceConnect
+    # Most specific: Exclude successful health checks by combined path and status check
+    {
+      name  = "grep"
+      match = "*" # AWS FireLens tag format: <container-name>-firelens-<task-id>
+      # Matches: {"path":"/health...","response_code":200} OR {"path":"/ready...","response_code":200}
+      exclude = "log (\\\"path\\\":\\\"/health.*response_code\\\":200|\\\"path\\\":\\\"/ready.*response_code\\\":200)"
+    },
+    # Less specific: Exclude health check endpoints - common in both AppMesh and ServiceConnect
     {
       name    = "grep"
       match   = "*" # AWS FireLens tag format: <container-name>-firelens-<task-id>
@@ -43,14 +51,7 @@ locals {
       match   = "*" # AWS FireLens tag format: <container-name>-firelens-<task-id>
       exclude = "path /readyz"
     },
-    # Exclude successful health checks by combined path and status check
-    {
-      name  = "grep"
-      match = "*" # AWS FireLens tag format: <container-name>-firelens-<task-id>
-      # Matches: {"path":"/health...","response_code":200} OR {"path":"/ready...","response_code":200}
-      exclude = "log (\\\"path\\\":\\\"/health.*response_code\\\":200|\\\"path\\\":\\\"/ready.*response_code\\\":200)"
-    },
-    # Add log source identifier
+    # Add log source identifier (always last)
     {
       name  = "modify"
       match = "*" # AWS FireLens tag format: <container-name>-firelens-<task-id>

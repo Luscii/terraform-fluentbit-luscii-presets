@@ -7,7 +7,7 @@ locals {
       name        = "nginx_json_iso8601"
       format      = "json"
       time_key    = "time_local"
-      time_format = "%Y-%m-%dT%H:%M:%S%:z"
+      time_format = "%Y-%m-%dT%H:%M:%S%z"
       time_keep   = false
       filter = {
         match        = "*" # AWS FireLens tag format: <container-name>-firelens-<task-id>
