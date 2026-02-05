@@ -12,12 +12,12 @@ locals {
   default_parsers = [
     # Parsers for "time" field (used by AWS built-in json parser)
     # These prevent warnings from the built-in parser when logs have ISO 8601 timestamps
-    # ISO 8601 with timezone offset with colon: 2026-01-15T08:59:58+00:00
+    # ISO 8601 with timezone offset: 2026-01-15T08:59:58+00:00 or 2026-01-15T08:59:58+0000
     {
       name        = "default_json_time_tz_colon"
       format      = "json"
       time_key    = "time"
-      time_format = "%Y-%m-%dT%H:%M:%S%:z"
+      time_format = "%Y-%m-%dT%H:%M:%S%z"
       time_keep   = false
       filter = {
         match        = "*"
@@ -57,12 +57,12 @@ locals {
         unescape_key = false
       }
     },
-    # ISO 8601 with microseconds and timezone: 2026-01-15T08:59:58.123456+00:00
+    # ISO 8601 with microseconds and timezone: 2026-01-15T08:59:58.123456+00:00 or 2026-01-15T08:59:58.123456+0000
     {
       name        = "default_json_time_micro"
       format      = "json"
       time_key    = "time"
-      time_format = "%Y-%m-%dT%H:%M:%S.%L%:z"
+      time_format = "%Y-%m-%dT%H:%M:%S.%L%z"
       time_keep   = false
       filter = {
         match        = "*"
@@ -73,12 +73,12 @@ locals {
       }
     },
     # Parsers for "datetime" field (used by PHP, general JSON logs)
-    # ISO 8601 with timezone offset with colon: 2026-01-15T08:59:58+00:00
+    # ISO 8601 with timezone offset: 2026-01-15T08:59:58+00:00 or 2026-01-15T08:59:58+0000
     {
       name        = "default_json_tz_colon"
       format      = "json"
       time_key    = "datetime"
-      time_format = "%Y-%m-%dT%H:%M:%S%:z"
+      time_format = "%Y-%m-%dT%H:%M:%S%z"
       time_keep   = false
       filter = {
         match        = "*"
@@ -118,12 +118,12 @@ locals {
         unescape_key = false
       }
     },
-    # ISO 8601 with microseconds and timezone: 2026-01-15T08:59:58.123456+00:00
+    # ISO 8601 with microseconds and timezone: 2026-01-15T08:59:58.123456+00:00 or 2026-01-15T08:59:58.123456+0000
     {
       name        = "default_json_micro"
       format      = "json"
       time_key    = "datetime"
-      time_format = "%Y-%m-%dT%H:%M:%S.%L%:z"
+      time_format = "%Y-%m-%dT%H:%M:%S.%L%z"
       time_keep   = false
       filter = {
         match        = "*"
@@ -134,12 +134,12 @@ locals {
       }
     },
     # Parsers for "time_local" field (used by Nginx, other web servers)
-    # ISO 8601 with timezone offset with colon: 2026-01-15T08:59:58+00:00
+    # ISO 8601 with timezone offset: 2026-01-15T08:59:58+00:00 or 2026-01-15T08:59:58+0000
     {
       name        = "default_json_time_local_tz_colon"
       format      = "json"
       time_key    = "time_local"
-      time_format = "%Y-%m-%dT%H:%M:%S%:z"
+      time_format = "%Y-%m-%dT%H:%M:%S%z"
       time_keep   = false
       filter = {
         match        = "*"
@@ -179,12 +179,12 @@ locals {
         unescape_key = false
       }
     },
-    # ISO 8601 with microseconds and timezone: 2026-01-15T08:59:58.123456+00:00
+    # ISO 8601 with microseconds and timezone: 2026-01-15T08:59:58.123456+00:00 or 2026-01-15T08:59:58.123456+0000
     {
       name        = "default_json_time_local_micro"
       format      = "json"
       time_key    = "time_local"
-      time_format = "%Y-%m-%dT%H:%M:%S.%L%:z"
+      time_format = "%Y-%m-%dT%H:%M:%S.%L%z"
       time_keep   = false
       filter = {
         match        = "*"

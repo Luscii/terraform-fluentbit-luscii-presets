@@ -72,8 +72,8 @@ run "validate_monolog_json_tz_colon_parser" {
   }
 
   assert {
-    condition     = local.php_parsers[0].time_format == "%Y-%m-%dT%H:%M:%S%:z"
-    error_message = "php_monolog_json_tz_colon should use ISO 8601 format with timezone colon: %Y-%m-%dT%H:%M:%S%:z"
+    condition     = local.php_parsers[0].time_format == "%Y-%m-%dT%H:%M:%S%z"
+    error_message = "php_monolog_json_tz_colon should use ISO 8601 format with timezone: %Y-%m-%dT%H:%M:%S%z (not %:z as Fluent Bit doesn't support colon)"
   }
 
   assert {
@@ -142,33 +142,58 @@ run "validate_monolog_json_micro_parser" {
   }
 
   assert {
-    condition     = local.php_parsers[3].time_format == "%Y-%m-%dT%H:%M:%S.%L%:z"
-    error_message = "php_monolog_json_micro should use ISO 8601 format with microseconds: %Y-%m-%dT%H:%M:%S.%L%:z"
+    condition     = local.php_parsers[3].time_format == "%Y-%m-%dT%H:%M:%S.%L%z"
+    error_message = "php_monolog_json_micro should use ISO 8601 format with microseconds: %Y-%m-%dT%H:%M:%S.%L%z (not %:z as Fluent Bit doesn't support colon)"
   }
 }
 
-# Test: PHP error parser configuration
-run "validate_php_error_parser" {
+# Test: PHP error parser without timezone (must be first to try more specific pattern)
+run "validate_php_error_no_tz_parser" {
   command = plan
 
   assert {
-    condition     = local.php_parsers[4].name == "php_error"
-    error_message = "Fifth parser should be php_error"
+    condition     = local.php_parsers[4].name == "php_error_no_tz"
+    error_message = "Fifth parser should be php_error_no_tz (without timezone)"
   }
 
   assert {
     condition     = local.php_parsers[4].format == "regex"
+    error_message = "php_error_no_tz should use regex format"
+  }
+
+  assert {
+    condition     = local.php_parsers[4].time_format == "%d-%b-%Y %H:%M:%S"
+    error_message = "php_error_no_tz should use format without timezone: %d-%b-%Y %H:%M:%S"
+  }
+}
+
+# Test: PHP error parser with timezone (comes after no_tz variant)
+run "validate_php_error_parser" {
+  command = plan
+
+  assert {
+    condition     = local.php_parsers[5].name == "php_error"
+    error_message = "Sixth parser should be php_error (with timezone)"
+  }
+
+  assert {
+    condition     = local.php_parsers[5].format == "regex"
     error_message = "php_error should use regex format"
   }
 
   assert {
-    condition     = startswith(local.php_parsers[4].regex, "^\\[")
+    condition     = startswith(local.php_parsers[5].regex, "^\\[")
     error_message = "php_error regex should start with ^\\["
   }
 
   assert {
-    condition     = local.php_parsers[4].time_key == "time"
+    condition     = local.php_parsers[5].time_key == "time"
     error_message = "php_error should use 'time' as time_key"
+  }
+
+  assert {
+    condition     = local.php_parsers[5].time_format == "%d-%b-%Y %H:%M:%S %Z"
+    error_message = "php_error should use format with timezone: %d-%b-%Y %H:%M:%S %Z"
   }
 }
 
