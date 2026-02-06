@@ -199,8 +199,8 @@ run "validate_static_asset_filter" {
 
   assert {
     condition = alltrue([
-      length(regexall("\\.js", local.nodejs_filters[1].exclude)) > 0,
-      length(regexall("\\.css", local.nodejs_filters[1].exclude)) > 0
+      length(regexall("js", local.nodejs_filters[1].exclude)) > 0,
+      length(regexall("css", local.nodejs_filters[1].exclude)) > 0
     ])
     error_message = "Static asset filter should exclude common file extensions (.js, .css, etc.)"
   }
