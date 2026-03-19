@@ -7,7 +7,7 @@ This directory contains examples demonstrating how to use the `terraform-fluentb
 
 ### [Complete](./complete/)
 A comprehensive example showing all features of the module:
-- Multiple log sources (PHP, Nginx, Datadog)
+- Multiple log sources (PHP, Nginx, Envoy, Datadog, Node.js)
 - Multiple containers for the same technology
 - Custom parsers and filters
 - Integration with ECS Fargate container definitions
@@ -17,6 +17,13 @@ Minimal example for configuring Fluent Bit for .NET application logging:
 - Sets up label context and log source for a .NET container
 - Outputs generated parser and filter configuration
 - Demonstrates FireLens tag-based routing (`<container-name>-firelens-*`)
+
+### Node.js Pino Logging (in Complete example)
+The complete example includes Node.js Pino logging demonstrations:
+- Example 5: Basic Node.js with Pino logging
+- Example 6: Mixed technology stack with Node.js, PHP, Nginx, and Datadog
+- Supports all Pino timestamp formats (epoch, ISO 8601)
+- Automatic health check and static asset filtering
 
 ## Running the Examples
 

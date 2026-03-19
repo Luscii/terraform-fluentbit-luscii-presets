@@ -35,6 +35,7 @@ locals {
     local.envoy_parsers_map,
     local.dotnet_parsers_map,
     local.datadog_parsers_map,
+    local.nodejs_parsers_map,
   )
 
   # Map of technology name to their filters (populated by tech-specific config files)
@@ -44,6 +45,7 @@ locals {
     local.envoy_filters_map,
     local.dotnet_filters_map,
     local.datadog_filters_map,
+    local.nodejs_filters_map,
   )
 
   # Final combined parsers: default + technology-specific + custom

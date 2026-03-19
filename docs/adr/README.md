@@ -11,6 +11,7 @@ This directory contains Architecture Decision Records (ADRs) for the terraform-f
 * [ADR-0004](0004-php-monolog-parsers-filters.md) - PHP Monolog JSON Parser with Multiple Datetime Formats
 * [ADR-0005](0005-datadog-apm-filtering.md) - Datadog APM Trace Log Filtering
 * [ADR-0006](0006-dotnet-pending-implementation.md) - .NET Logging Support - Implemented
+* [ADR-0007](0007-nodejs-pino-json-parser.md) - Node.js Pino JSON Parser and Logging Support
 
 ## About ADRs
 

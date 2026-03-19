@@ -187,6 +187,69 @@ module "log_config_migration" {
 }
 
 ################################################################################
+# Example 5: Node.js Pino Logging Setup
+################################################################################
+
+module "log_config_nodejs" {
+  source = "../../"
+
+  name = "nodejs-service"
+
+  # Node.js application with Pino logging
+  log_sources = [
+    {
+      name      = "nodejs"
+      container = "api"
+    },
+    {
+      name      = "nginx"
+      container = "web"
+    }
+  ]
+}
+
+################################################################################
+# Example 6: Mixed Technology Stack
+################################################################################
+
+module "log_config_mixed" {
+  source = "../../"
+
+  name    = "mixed-stack-service"
+  context = module.label.context
+
+  # Multiple technologies in one task
+  log_sources = [
+    {
+      name      = "nodejs"
+      container = "api"
+    },
+    {
+      name      = "php"
+      container = "legacy-app"
+    },
+    {
+      name      = "nginx"
+      container = "web"
+    },
+    {
+      name      = "datadog"
+      container = "datadog-agent"
+    }
+  ]
+
+  # Add custom filters for the Node.js API
+  custom_filters = [
+    # Only keep warn/error/fatal logs from Node.js API
+    {
+      name    = "grep"
+      match   = "api-firelens-*"
+      regex   = "log \"level\":(40|50|60)[,}]"
+    }
+  ]
+}
+
+################################################################################
 # Supporting Resources
 ################################################################################
 

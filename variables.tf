@@ -58,7 +58,7 @@ variable "log_sources" {
     <container-name>-firelens-<task-id> (e.g., "app-firelens-*" for container "app").
   EOT
   type = list(object({
-    name      = string                # Technology name (e.g., "php", "nginx", "envoy", "dotnet")
+    name      = string                # Technology name (e.g., "php", "nginx", "envoy", "dotnet", "datadog", "nodejs")
     container = optional(string, "*") # Container name in ECS task. Defaults to "*" for all containers
   }))
   default = []
@@ -66,9 +66,9 @@ variable "log_sources" {
   validation {
     condition = alltrue([
       for source in var.log_sources :
-      contains(["php", "nginx", "envoy", "dotnet", "datadog"], source.name)
+      contains(["php", "nginx", "envoy", "dotnet", "datadog", "nodejs"], source.name)
     ])
-    error_message = "Supported log source technologies are: php, nginx, envoy, dotnet, datadog"
+    error_message = "Supported log source technologies are: php, nginx, envoy, dotnet, datadog, nodejs"
   }
 
   validation {

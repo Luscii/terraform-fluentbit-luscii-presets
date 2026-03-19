@@ -1,7 +1,7 @@
 
 # terraform-fluentbit-configuration
 
-Centralized Fluent Bit configuration for Luscii ECS/Fargate workloads, supporting PHP, Nginx, Envoy, Datadog, and .NET log parsing and filtering. Implements a parser-filter architecture (see [ADR-0002](docs/adr/0002-parser-filter-architecture.md)).
+Centralized Fluent Bit configuration for Luscii ECS/Fargate workloads, supporting PHP, Nginx, Envoy, Datadog, .NET, and Node.js log parsing and filtering. Implements a parser-filter architecture (see [ADR-0002](docs/adr/0002-parser-filter-architecture.md)).
 
 **Default JSON Parsers:** This module includes default JSON parsers that handle various ISO 8601 datetime formats for `time` (AWS built-in json parser), `datetime` (PHP, general logs), and `time_local` (Nginx, web servers) fields, preventing "invalid time format" errors in Fluent Bit. These parsers are always included regardless of the `log_sources` configuration.
 
@@ -15,6 +15,19 @@ This module provides full .NET logging support, including:
 - Comprehensive tests and scenarios (see [ADR-0006](docs/adr/0006-dotnet-pending-implementation.md))
 
 See `dotnet-config.tf`, `tests/dotnet-config.tftest.hcl`, and `docs/features/dotnet-logging.feature` for details.
+
+## Node.js Pino Logging Support
+
+This module provides full Node.js Pino logging support, including:
+
+- Parsers for Pino JSON logs with ISO 8601 timestamp formats (UTC and timezone variants)
+- Filters for health check/static asset exclusion, debug log filtering, and log source enrichment
+- Container-specific match patterns for robust routing
+- Comprehensive tests and scenarios (see [ADR-0007](docs/adr/0007-nodejs-pino-json-parser.md))
+
+**⚠️ Important:** Pino must be configured with `timestamp: pino.stdTimeFunctions.isoTime` - the default millisecond epoch format is not supported.
+
+See `nodejs-config.tf`, `tests/nodejs-config.tftest.hcl`, and `docs/features/nodejs-logging.feature` for details.
 
 
 ## Examples
@@ -63,6 +76,79 @@ output "dotnet_parsers" {
 }
 output "dotnet_filters" {
   value = module.fluentbit_config.log_config_filters
+}
+```
+
+### Advanced Setup with Node.js Pino Logging
+
+```terraform
+module "label" {
+  source  = "cloudposse/label/null"
+  version = "0.25.0"
+
+  namespace   = "luscii"
+  environment = "production"
+  name        = "nodejs-app"
+}
+
+module "fluentbit_config" {
+  source = "github.com/Luscii/terraform-fluentbit-configuration"
+
+  name        = module.label.name
+  log_sources = [{ name = "nodejs", container = "nodejs-app" }]
+  custom_parsers = [
+    # Add custom Node.js parser if needed
+  ]
+  custom_filters = [
+    # Add custom Node.js filter if needed
+  ]
+  context = module.label.context
+}
+
+# Use outputs for ECS/Fargate task definitions
+output "nodejs_parsers" {
+  value = module.fluentbit_config.log_config_parsers
+}
+output "nodejs_filters" {
+  value = module.fluentbit_config.log_config_filters
+}
+```
+
+### Pino Configuration Example
+
+**⚠️ IMPORTANT:** Pino's default millisecond epoch format is NOT supported by Fluent Bit. You MUST configure Pino to use ISO 8601 timestamps.
+
+**Required Pino configuration:**
+
+```javascript
+const pino = require('pino');
+
+// Configure Pino with ISO 8601 timestamps (REQUIRED)
+const logger = pino({ 
+  timestamp: pino.stdTimeFunctions.isoTime 
+});
+
+logger.info('Server started');
+// Output: {"level":30,"time":"2026-02-05T10:30:00.000Z","msg":"Server started"}
+```
+
+**Why the default Pino format doesn't work:**
+
+Pino's default configuration outputs timestamps as milliseconds since epoch (e.g., `"time":1738755000000`). Fluent Bit's timestamp parser uses `strptime()`, which cannot parse millisecond epoch integers. See [Fluent Bit discussion #6502](https://github.com/fluent/fluent-bit/discussions/6502) for details.
+
+### Multi-Technology Setup
+
+```terraform
+module "fluentbit_config" {
+  source = "github.com/Luscii/terraform-fluentbit-configuration"
+
+  name = "multi-tech-app"
+  log_sources = [
+    { name = "nodejs", container = "api" },
+    { name = "nginx", container = "web" },
+    { name = "php", container = "worker" }
+  ]
+  context = module.label.context
 }
 ```
 
