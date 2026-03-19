@@ -58,7 +58,7 @@ variable "log_sources" {
     <container-name>-firelens-<task-id> (e.g., "app-firelens-*" for container "app").
   EOT
   type = list(object({
-    name      = string                # Technology name (e.g., "php", "nginx", "envoy", "dotnet")
+    name      = string                # Technology name (e.g., "php", "nginx", "envoy", "dotnet", "datadog", "nodejs")
     container = optional(string, "*") # Container name in ECS task. Defaults to "*" for all containers
   }))
   default = []

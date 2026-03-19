@@ -5,6 +5,8 @@ locals {
   nodejs_parsers = [
     # Pino default format with milliseconds epoch timestamp
     # Example: {"level":30,"time":1738755000000,"pid":12345,"hostname":"server-01","msg":"Server started"}
+    # Note: Fluent Bit automatically handles numeric time values as seconds/milliseconds since epoch
+    # when time_format is not specified. Pino uses milliseconds by default.
     {
       name        = "nodejs_pino_json_epoch"
       format      = "json"

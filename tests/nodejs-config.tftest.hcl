@@ -3,8 +3,7 @@
 
 # Global variables for all tests
 variables {
-  enabled = true
-  name    = "test"
+  name = "test"
 }
 
 # Test: Node.js parsers are defined correctly
@@ -199,10 +198,10 @@ run "validate_static_asset_filter" {
 
   assert {
     condition = alltrue([
-      length(regexall("js", local.nodejs_filters[1].exclude)) > 0,
-      length(regexall("css", local.nodejs_filters[1].exclude)) > 0
+      length(regexall("\\(js\\|", local.nodejs_filters[1].exclude)) > 0 || length(regexall("\\|js\\|", local.nodejs_filters[1].exclude)) > 0 || length(regexall("\\|js\\)", local.nodejs_filters[1].exclude)) > 0,
+      length(regexall("\\(css\\|", local.nodejs_filters[1].exclude)) > 0 || length(regexall("\\|css\\|", local.nodejs_filters[1].exclude)) > 0 || length(regexall("\\|css\\)", local.nodejs_filters[1].exclude)) > 0
     ])
-    error_message = "Static asset filter should exclude common file extensions (.js, .css, etc.)"
+    error_message = "Static asset filter should exclude common file extensions (.js, .css, etc.) - Expected extensions in alternation group like (js|css|...)"
   }
 }
 
@@ -323,13 +322,10 @@ run "validate_container_specific_match_pattern" {
   assert {
     condition = alltrue([
       for filter in local.technology_filters :
-      can(filter.match) && (
-        filter.match == "nodejs-app-firelens-*" || 
-        filter.match == "*"
-      )
+      filter.match == "nodejs-app-firelens-*"
       if contains([for s in var.log_sources : s.name], "nodejs")
     ])
-    error_message = "Container-specific filters should use 'nodejs-app-firelens-*' match pattern"
+    error_message = "Container-specific filters should use 'nodejs-app-firelens-*' match pattern, not wildcard"
   }
 }
 

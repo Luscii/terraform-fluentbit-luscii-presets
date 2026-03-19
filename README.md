@@ -37,8 +37,43 @@ module "fluentbit_config" {
   source = "github.com/Luscii/terraform-fluentbit-configuration"
 
   name        = "example"
-  log_sources = [{ name = "nodejs", container = "nodejs-app" }]
+  log_sources = [{ name = "dotnet", container = "dotnet-app" }]
   context     = module.label.context
+}
+```
+
+### Advanced Setup with .NET Logging
+
+```terraform
+module "label" {
+  source  = "cloudposse/label/null"
+  version = "0.25.0"
+
+  namespace   = "luscii"
+  environment = "production"
+  name        = "dotnet-app"
+}
+
+module "fluentbit_config" {
+  source = "github.com/Luscii/terraform-fluentbit-configuration"
+
+  name        = module.label.name
+  log_sources = [{ name = "dotnet", container = "dotnet-app" }]
+  custom_parsers = [
+    # Add custom .NET parser if needed
+  ]
+  custom_filters = [
+    # Add custom .NET filter if needed
+  ]
+  context = module.label.context
+}
+
+# Use outputs for ECS/Fargate task definitions
+output "dotnet_parsers" {
+  value = module.fluentbit_config.log_config_parsers
+}
+output "dotnet_filters" {
+  value = module.fluentbit_config.log_config_filters
 }
 ```
 
@@ -88,13 +123,18 @@ const logger = pino();
 
 logger.info('Server started');
 // Output: {"level":30,"time":1738755000000,"pid":12345,"hostname":"server-01","msg":"Server started"}
+```
 
+Alternative configuration with ISO 8601 timestamp:
+
+```javascript
 // Pino with ISO 8601 timestamp
-const logger = pino({ 
+const pino = require('pino');
+const loggerIso = pino({ 
   timestamp: pino.stdTimeFunctions.isoTime 
 });
 
-logger.info('Server started');
+loggerIso.info('Server started');
 // Output: {"level":30,"time":"2026-02-05T10:30:00.000Z","msg":"Server started"}
 ```
 

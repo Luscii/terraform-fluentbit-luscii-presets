@@ -252,13 +252,13 @@ const logger = pino({
 **Files to Create/Modify:**
 - ✅ docs/adr/0007-nodejs-pino-json-parser.md (this file)
 - ✅ docs/adr/README.md (update index)
-- ⏳ docs/features/nodejs-logging.feature (scenario-shaper)
-- ⏳ tests/nodejs-config.tftest.hcl (terraform-tester)
-- ⏳ nodejs-config.tf (terraform-module-specialist)
-- ⏳ config.tf (terraform-module-specialist - merge maps)
-- ⏳ variables.tf (terraform-module-specialist - add "nodejs" to validation)
-- ⏳ README.md (documentation-specialist)
-- ⏳ examples/complete/main.tf (examples-specialist)
+- ✅ docs/features/nodejs-logging.feature (scenario-shaper)
+- ✅ tests/nodejs-config.tftest.hcl (terraform-tester)
+- ✅ nodejs-config.tf (terraform-module-specialist)
+- ✅ config.tf (terraform-module-specialist - merge maps)
+- ✅ variables.tf (terraform-module-specialist - add "nodejs" to validation)
+- ✅ README.md (documentation-specialist)
+- ✅ examples/complete/main.tf (examples-specialist)
 
 **Testing Strategy:**
 - Unit tests for parser structure and configuration
