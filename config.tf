@@ -1,10 +1,4 @@
 locals {
-  # Group log sources by technology for easier processing
-  log_sources_by_tech = {
-    for source in var.log_sources :
-    source.name => source...
-  }
-
   # Collect all technology-specific parsers with container matching
   # Apply container-specific match patterns to parsers with embedded filter configurations
   # Per AWS FireLens documentation, tag format is: <container-name>-firelens-<task-id>
