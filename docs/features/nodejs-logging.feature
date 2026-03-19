@@ -1,17 +1,13 @@
 Feature: Node.js Pino Logging Support
   As a Platform Engineer
   I want robust parsing and filtering for Node.js Pino logs
-  So that all timestamp variants are correctly processed and noise is filtered
+  So that ISO 8601 timestamp variants are correctly processed and noise is filtered
 
   Background:
     Given the Fluent Bit configuration module uses the parser-filter architecture (ADR-0002)
-    And Node.js Pino logs are emitted in JSON format with various timestamp formats
-    And Pino supports milliseconds epoch and ISO 8601 timestamp formats
-
-  Scenario: Parse Pino JSON with milliseconds epoch timestamp
-    Given a log with time as milliseconds epoch "1738755000000"
-    When the parser_config is generated
-    Then the parser "nodejs_pino_json_epoch" is present and matches the log
+    And Node.js Pino logs are emitted in JSON format with ISO 8601 timestamps
+    And Pino must be configured with timestamp: pino.stdTimeFunctions.isoTime
+    And Pino's default millisecond epoch format is NOT supported by Fluent Bit
 
   Scenario: Parse Pino JSON with ISO 8601 UTC timestamp
     Given a log with time "2026-02-05T10:30:00.000Z"

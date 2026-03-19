@@ -11,8 +11,8 @@ run "validate_nodejs_parsers_count" {
   command = plan
 
   assert {
-    condition     = length(local.nodejs_parsers) == 3
-    error_message = "Expected 3 Node.js parsers (epoch + 2 ISO variants), got ${length(local.nodejs_parsers)}"
+    condition     = length(local.nodejs_parsers) == 2
+    error_message = "Expected 2 Node.js parsers (2 ISO variants), got ${length(local.nodejs_parsers)}"
   }
 }
 
@@ -26,8 +26,8 @@ run "validate_nodejs_parsers_map" {
   }
 
   assert {
-    condition     = length(local.nodejs_parsers_map["nodejs"]) == 3
-    error_message = "nodejs_parsers_map['nodejs'] should contain 3 parsers"
+    condition     = length(local.nodejs_parsers_map["nodejs"]) == 2
+    error_message = "nodejs_parsers_map['nodejs'] should contain 2 parsers"
   }
 }
 
@@ -56,57 +56,32 @@ run "validate_nodejs_filters_map" {
   }
 }
 
-# Test: Pino JSON parser with milliseconds epoch timestamp
-run "validate_pino_json_epoch_parser" {
-  command = plan
-
-  assert {
-    condition     = local.nodejs_parsers[0].name == "nodejs_pino_json_epoch"
-    error_message = "First parser should be nodejs_pino_json_epoch"
-  }
-
-  assert {
-    condition     = local.nodejs_parsers[0].format == "json"
-    error_message = "nodejs_pino_json_epoch should use json format"
-  }
-
-  assert {
-    condition     = local.nodejs_parsers[0].time_key == "time"
-    error_message = "nodejs_pino_json_epoch should use 'time' as time_key"
-  }
-
-  assert {
-    condition     = local.nodejs_parsers[0].time_keep == false
-    error_message = "nodejs_pino_json_epoch should not keep original time field"
-  }
-}
-
 # Test: Pino JSON parser with ISO 8601 UTC timestamp
 run "validate_pino_json_iso_parser" {
   command = plan
 
   assert {
-    condition     = local.nodejs_parsers[1].name == "nodejs_pino_json_iso"
-    error_message = "Second parser should be nodejs_pino_json_iso"
+    condition     = local.nodejs_parsers[0].name == "nodejs_pino_json_iso"
+    error_message = "First parser should be nodejs_pino_json_iso"
   }
 
   assert {
-    condition     = local.nodejs_parsers[1].format == "json"
+    condition     = local.nodejs_parsers[0].format == "json"
     error_message = "nodejs_pino_json_iso should use json format"
   }
 
   assert {
-    condition     = local.nodejs_parsers[1].time_format == "%Y-%m-%dT%H:%M:%S.%LZ"
+    condition     = local.nodejs_parsers[0].time_format == "%Y-%m-%dT%H:%M:%S.%LZ"
     error_message = "nodejs_pino_json_iso should use ISO 8601 format with milliseconds: %Y-%m-%dT%H:%M:%S.%LZ"
   }
 
   assert {
-    condition     = local.nodejs_parsers[1].time_key == "time"
+    condition     = local.nodejs_parsers[0].time_key == "time"
     error_message = "nodejs_pino_json_iso should use 'time' as time_key"
   }
 
   assert {
-    condition     = local.nodejs_parsers[1].time_keep == false
+    condition     = local.nodejs_parsers[0].time_keep == false
     error_message = "nodejs_pino_json_iso should not keep original time field"
   }
 }
@@ -116,27 +91,27 @@ run "validate_pino_json_iso_tz_parser" {
   command = plan
 
   assert {
-    condition     = local.nodejs_parsers[2].name == "nodejs_pino_json_iso_tz"
-    error_message = "Third parser should be nodejs_pino_json_iso_tz"
+    condition     = local.nodejs_parsers[1].name == "nodejs_pino_json_iso_tz"
+    error_message = "Second parser should be nodejs_pino_json_iso_tz"
   }
 
   assert {
-    condition     = local.nodejs_parsers[2].format == "json"
+    condition     = local.nodejs_parsers[1].format == "json"
     error_message = "nodejs_pino_json_iso_tz should use json format"
   }
 
   assert {
-    condition     = local.nodejs_parsers[2].time_format == "%Y-%m-%dT%H:%M:%S.%L%z"
+    condition     = local.nodejs_parsers[1].time_format == "%Y-%m-%dT%H:%M:%S.%L%z"
     error_message = "nodejs_pino_json_iso_tz should use ISO 8601 format with milliseconds and timezone: %Y-%m-%dT%H:%M:%S.%L%z"
   }
 
   assert {
-    condition     = local.nodejs_parsers[2].time_key == "time"
+    condition     = local.nodejs_parsers[1].time_key == "time"
     error_message = "nodejs_pino_json_iso_tz should use 'time' as time_key"
   }
 
   assert {
-    condition     = local.nodejs_parsers[2].time_keep == false
+    condition     = local.nodejs_parsers[1].time_keep == false
     error_message = "nodejs_pino_json_iso_tz should not keep original time field"
   }
 }
@@ -273,8 +248,8 @@ run "validate_nodejs_in_technology_parsers_map" {
   }
 
   assert {
-    condition     = length(local.technology_parsers_map["nodejs"]) == 3
-    error_message = "technology_parsers_map['nodejs'] should have 3 parsers"
+    condition     = length(local.technology_parsers_map["nodejs"]) == 2
+    error_message = "technology_parsers_map['nodejs'] should have 2 parsers"
   }
 }
 
@@ -304,8 +279,8 @@ run "validate_nodejs_parsers_in_output_with_nodejs_source" {
   }
 
   assert {
-    condition     = length(local.technology_parsers) >= 3
-    error_message = "Output should include at least 3 Node.js parsers when nodejs is in log_sources"
+    condition     = length(local.technology_parsers) >= 2
+    error_message = "Output should include at least 2 Node.js parsers when nodejs is in log_sources"
   }
 }
 

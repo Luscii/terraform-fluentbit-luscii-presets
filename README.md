@@ -20,10 +20,12 @@ See `dotnet-config.tf`, `tests/dotnet-config.tftest.hcl`, and `docs/features/dot
 
 This module provides full Node.js Pino logging support, including:
 
-- Parsers for Pino JSON logs with multiple timestamp formats (milliseconds epoch, ISO 8601)
+- Parsers for Pino JSON logs with ISO 8601 timestamp formats (UTC and timezone variants)
 - Filters for health check/static asset exclusion, debug log filtering, and log source enrichment
 - Container-specific match patterns for robust routing
 - Comprehensive tests and scenarios (see [ADR-0007](docs/adr/0007-nodejs-pino-json-parser.md))
+
+**⚠️ Important:** Pino must be configured with `timestamp: pino.stdTimeFunctions.isoTime` - the default millisecond epoch format is not supported.
 
 See `nodejs-config.tf`, `tests/nodejs-config.tftest.hcl`, and `docs/features/nodejs-logging.feature` for details.
 
@@ -114,29 +116,25 @@ output "nodejs_filters" {
 
 ### Pino Configuration Example
 
-Configure Pino in your Node.js application:
+**⚠️ IMPORTANT:** Pino's default millisecond epoch format is NOT supported by Fluent Bit. You MUST configure Pino to use ISO 8601 timestamps.
+
+**Required Pino configuration:**
 
 ```javascript
-// Default Pino configuration (milliseconds epoch timestamp)
 const pino = require('pino');
-const logger = pino();
 
-logger.info('Server started');
-// Output: {"level":30,"time":1738755000000,"pid":12345,"hostname":"server-01","msg":"Server started"}
-```
-
-Alternative configuration with ISO 8601 timestamp:
-
-```javascript
-// Pino with ISO 8601 timestamp
-const pino = require('pino');
-const loggerIso = pino({ 
+// Configure Pino with ISO 8601 timestamps (REQUIRED)
+const logger = pino({ 
   timestamp: pino.stdTimeFunctions.isoTime 
 });
 
-loggerIso.info('Server started');
+logger.info('Server started');
 // Output: {"level":30,"time":"2026-02-05T10:30:00.000Z","msg":"Server started"}
 ```
+
+**Why the default Pino format doesn't work:**
+
+Pino's default configuration outputs timestamps as milliseconds since epoch (e.g., `"time":1738755000000`). Fluent Bit's timestamp parser uses `strptime()`, which cannot parse millisecond epoch integers. See [Fluent Bit discussion #6502](https://github.com/fluent/fluent-bit/discussions/6502) for details.
 
 ### Multi-Technology Setup
 

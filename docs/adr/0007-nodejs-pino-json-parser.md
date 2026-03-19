@@ -34,29 +34,44 @@ We need to add Node.js/Pino support following the established parser-filter arch
 
 ## Decision Outcome
 
-**Chosen option:** "Multiple parsers for different Pino timestamp formats", because Pino can be configured to output timestamps in different formats (milliseconds epoch or ISO 8601 string), and Fluent Bit's parser filter tries parsers sequentially until one succeeds. This approach provides maximum compatibility without requiring application configuration changes.
+**Chosen option:** "ISO 8601 timestamp parsers only", because Fluent Bit's `strptime()` cannot parse Pino's default millisecond epoch format (e.g., `1738755000000`). Applications must configure Pino to use ISO 8601 timestamps instead.
 
 ### Implementation
 
-**Parsers (3 total):**
+**Parsers (2 total):**
 
-1. **nodejs_pino_json_epoch** - Pino default format with milliseconds epoch
-   - Format: json
-   - Time field: `time` (milliseconds since epoch)
-   - Time format: Handled by Fluent Bit's automatic conversion
-   - Example: `{"level":30,"time":1738755000000,"msg":"Server started"}`
-
-2. **nodejs_pino_json_iso** - Pino with ISO 8601 timestamp
+1. **nodejs_pino_json_iso** - Pino with ISO 8601 UTC timestamp
    - Format: json
    - Time field: `time`
    - Time format: %Y-%m-%dT%H:%M:%S.%LZ
    - Example: `{"level":30,"time":"2026-02-05T10:30:00.000Z","msg":"Server started"}`
 
-3. **nodejs_pino_json_iso_tz** - Pino with ISO 8601 timestamp and timezone
+2. **nodejs_pino_json_iso_tz** - Pino with ISO 8601 timestamp and timezone
    - Format: json
    - Time field: `time`
    - Time format: %Y-%m-%dT%H:%M:%S.%L%z
    - Example: `{"level":30,"time":"2026-02-05T10:30:00.000+00:00","msg":"Server started"}`
+
+**Why Pino's default epoch format is NOT supported:**
+
+Pino's default configuration outputs timestamps as milliseconds since epoch (e.g., `"time":1738755000000`). Fluent Bit's `Time_Format` directive uses `strptime()`, which only supports:
+- `%s` - seconds since epoch (not milliseconds)
+- `%s.%L` - seconds with fractional milliseconds (not raw milliseconds)
+
+There is no strptime format specifier for millisecond epoch integers. See [Fluent Bit discussion #6502](https://github.com/fluent/fluent-bit/discussions/6502).
+
+**Required Pino Configuration:**
+
+Applications MUST configure Pino to use ISO 8601 timestamps:
+
+```javascript
+const pino = require('pino');
+const logger = pino({ 
+  timestamp: pino.stdTimeFunctions.isoTime 
+});
+```
+
+Alternatively, use `pino.stdTimeFunctions.epochTime` which outputs seconds (not milliseconds) since epoch, though ISO 8601 is recommended for better readability and debugging.
 
 **Filters (5 total):**
 
@@ -73,16 +88,15 @@ Modify filter (1) for enrichment:
 
 **Positive:**
 
-* Supports Pino's default configuration (milliseconds epoch timestamp)
-* Supports common Pino customizations (ISO 8601 timestamps)
-* No application code changes required
-* Follows established parser-filter architecture
-* Clear parser names indicate which timestamp format they handle
-* Easy to extend with additional parsers if needed
+* Supports ISO 8601 timestamp variants (UTC and timezone offset)
+* Clear parser names indicate which format they handle
+* Easy to extend with additional ISO 8601 formats if needed
 * Noise filtering reduces log volume and costs
+* Follows established parser-filter architecture
 
 **Negative:**
 
+* **Requires Pino configuration change** - Applications using default Pino (millisecond epoch) must add `timestamp: pino.stdTimeFunctions.isoTime`
 * Multiple parsers means Fluent Bit tries each until success (slight performance overhead)
 * Must maintain parser configurations as Pino evolves
 * Noise filters may need tuning per application
@@ -90,17 +104,17 @@ Modify filter (1) for enrichment:
 **Neutral:**
 
 * All parsers attempt to parse the same "log" field
-* Parser order doesn't matter (Fluent Bit tries all)
+* Parser order matters when formats could overlap, but ISO variants are mutually exclusive
 * Filters are applied after parsing succeeds
 
 ### Confirmation
 
 Success will be confirmed by:
 * ✅ nodejs-config.tftest.hcl passes (all parser and filter tests)
-* ✅ All 3 parsers validated with different timestamp formats
+* ✅ Both ISO parsers validated with different timestamp formats
 * ✅ All 5 filters validated
 * ✅ Integration tests pass with container-specific routing
-* ✅ Documentation includes Pino configuration examples
+* ✅ Documentation includes required Pino configuration
 
 ## Implementation Plan
 
@@ -109,7 +123,6 @@ Success will be confirmed by:
 **1. scenario-shaper** - Create scenario:
 - File: `docs/features/nodejs-logging.feature`
 - Scenarios:
-  - Parse Pino JSON with milliseconds epoch timestamp
   - Parse Pino JSON with ISO 8601 timestamp (UTC)
   - Parse Pino JSON with ISO 8601 timestamp (timezone)
   - Filter out health check endpoints

@@ -1,25 +1,14 @@
 locals {
   # Node.js Pino parser configurations
-  # These parsers handle Node.js Pino JSON log formats with different timestamp variants
-  # Pino supports milliseconds epoch (default) and ISO 8601 timestamps
+  # These parsers handle Node.js Pino JSON log formats with ISO 8601 timestamp variants
+  # 
+  # IMPORTANT: Pino's default millisecond epoch format (e.g., "time":1738755000000) is NOT supported
+  # because Fluent Bit's strptime() cannot parse millisecond-precision epoch integers.
+  # Applications MUST configure Pino to use ISO 8601 timestamps:
+  #   const logger = pino({ timestamp: pino.stdTimeFunctions.isoTime });
+  # 
+  # See: https://github.com/fluent/fluent-bit/discussions/6502
   nodejs_parsers = [
-    # Pino default format with milliseconds epoch timestamp
-    # Example: {"level":30,"time":1738755000000,"pid":12345,"hostname":"server-01","msg":"Server started"}
-    # Note: Fluent Bit automatically handles numeric time values as seconds/milliseconds since epoch
-    # when time_format is not specified. Pino uses milliseconds by default.
-    {
-      name        = "nodejs_pino_json_epoch"
-      format      = "json"
-      time_key    = "time"
-      time_keep   = false
-      filter = {
-        match        = "*" # AWS FireLens tag format: <container-name>-firelens-<task-id> in config.tf
-        key_name     = "log"
-        reserve_data = true
-        preserve_key = false
-        unescape_key = false
-      }
-    },
     # Pino with ISO 8601 UTC timestamp
     # Example: {"level":30,"time":"2026-02-05T10:30:00.000Z","msg":"Server started"}
     {
@@ -29,7 +18,7 @@ locals {
       time_format = "%Y-%m-%dT%H:%M:%S.%LZ"
       time_keep   = false
       filter = {
-        match        = "*"
+        match        = "*" # AWS FireLens tag format: <container-name>-firelens-<task-id> in config.tf
         key_name     = "log"
         reserve_data = true
         preserve_key = false
