@@ -113,8 +113,12 @@ run "validate_log_source_enrichment" {
 run "validate_health_check_filter" {
   command = plan
   assert {
-    condition     = local.dotnet_filters[0].type == "grep"
+    condition     = local.dotnet_filters[0].name == "grep"
     error_message = "First dotnet filter should be a grep filter for health checks/static assets"
+  }
+  assert {
+    condition     = local.dotnet_filters[0].exclude == "message .*health.*|.*static.*"
+    error_message = "First dotnet filter should exclude health checks and static assets"
   }
 }
 
@@ -122,16 +126,20 @@ run "validate_health_check_filter" {
 run "validate_profile_warning_filter" {
   command = plan
   assert {
-    condition     = local.dotnet_filters[1].type == "grep"
+    condition     = local.dotnet_filters[1].name == "grep"
     error_message = "Second dotnet filter should be a grep filter for profile image warnings"
+  }
+  assert {
+    condition     = local.dotnet_filters[1].exclude == "message .*Image not found for userId.*"
+    error_message = "Second dotnet filter should exclude profile image warnings"
   }
 }
 
-# Test: Container-specific routing
-run "validate_container_routing" {
+# Test: FireLens match pattern (consistent with all other presets)
+run "validate_firelens_match_pattern" {
   command = plan
   assert {
-    condition     = local.dotnet_filters_map["dotnet"][0].match == "kubernetes.var.log.containers.dotnet-app*"
-    error_message = "Dotnet filter match pattern should include the container name 'dotnet-app'"
+    condition     = local.dotnet_filters_map["dotnet"][0].match == "*"
+    error_message = "Dotnet filter match pattern should use '*' for FireLens tag format"
   }
 }
