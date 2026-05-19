@@ -37,4 +37,7 @@ node_modules/
 # ignore local terraform variables file
 local.tfvars
 examples/*/.terraform/
-examples/*/.terraform.lock.hcl
+
+# Dependency lock file — only meaningful in root modules. This is a child
+# module; consumers regenerate their own lock. Don't track here.
+**/.terraform.lock.hcl
